@@ -1,3 +1,5 @@
+#!/home/vakhokoto/General/kawa-3.0/bin/kawa
+
 ;; The Where-Am-I helper functions:
 ;; originally written by Nick Parlante
 
@@ -249,14 +251,14 @@
 ;; where P_A is distance-product for A and A is the point itself
 
 (define (rate-points seq)
-  (map (lambda (elem)
+  	(map (lambda (elem)
         (cons (distance-product elem seq) (cons elem '()))) seq))
 
 ;; compare function for sorting points
 ;; used in sort-point
 
 (define (compare-distances elem1 elem2)
-  (< (car elem1) (car elem2)))
+  	(< (car elem1) (car elem2)))
 
 ;; takes the seq of rated points and sorting it with priority of 'rate-point'
 ;; in ascending order
@@ -267,12 +269,12 @@
 ;; takes the list of points and returns first half of sequnce with lowest 'rates'
 
 (define (clumped-points seq)
-  (apply append (map cdr 
-    ((lambda (elem)
-      (prefix-of-list elem (div (length elem) 2)))
-      ((lambda (sub-elem)
-        (sort-points sub-elem))
-        (rate-points seq))))))
+  	(apply append (map cdr 
+    	((lambda (elem)
+		  (prefix-of-list elem (div (length elem) 2)))
+      	  ((lambda (sub-elem)
+        	(sort-points sub-elem))
+        	(rate-points seq))))))
 
 ;; takes two points (Ax; Ay) and (Bx; By) and returns point (Ax + Bx; Ay + By)
 
@@ -284,7 +286,7 @@
 ;; analogically Cy = sum of all Ay in seq / count of element in seq
 
 (define (average seq sum-point count)
-  (if (null? seq) (if (= count 0) sum-point
+  	(if (null? seq) (if (= count 0) sum-point
                     (cons (/ (car sum-point) count) (cons (/ (cadr sum-point) count) '())))
     (average (cdr seq) (add-points sum-point (car seq)) (+ count 1))))
 
@@ -292,29 +294,23 @@
 ;; where av-p is average-point for given list and rate-av-p is rate of av-p
 
 (define (average-point seq)
-  ((lambda (average-p)
-    (cons (distance-product average-p seq) (list average-p)))
-    (average seq '(0 0) 0)))
+  	((lambda (average-p)
+    	(cons (distance-product average-p seq) (list average-p)))
+    	(average seq '(0 0) 0)))
 
 ;; takes a guess (a list of circles), 
 ;; computes all the points of intersection, winnows those points down to those
 ;; which are most clumped, and returns their average point.
 
 (define (best-estimate seq)
-  (average-point (clumped-points (intersection-points seq))))
-
-;; creates index list where on ith position is i
-
-(define (create-index-list l cur-num)
-  (if (= l 0) '()
-    (cons cur-num (create-index-list (- l 1) (+ cur-num 1)))))
+  	(average-point (clumped-points (intersection-points seq))))
 
 ;; removes index-th element from given sequence
 
-(define (remove-elem seq index)
+(define (remove-elem seq elem)
   (cond ((null? seq) '())
-    ((= index 1) (cdr seq))
-    (else (cons (car seq) (remove-elem (cdr seq) (- index 1))))))
+    ((and (= (car elem) (car (car seq))) (= (cadr elem) (cadr (car seq)))) (cdr seq))
+    (else (cons (car seq) (remove-elem (cdr seq) elem)))))
 
 ;; cons-es elem in all element of the list
 
@@ -326,8 +322,8 @@
 
 (define (permutation seq)
   (if (null? seq) '(())
-    (apply append (map (lambda (elem index)
-          (add-to-each elem (permutation (remove-elem seq index)))) seq (create-index-list (length seq) 1)))))
+    (apply append (map (lambda (elem)
+          (add-to-each elem (permutation (remove-elem seq elem)))) seq))))
 
 ;; conses all elements of seq1 to all elements of seq2 respectiely
 
